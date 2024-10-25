@@ -2,6 +2,8 @@
 
 ## Overview
 
+![Terrible mockup](./assets/terrible-mockup)
+
 This is a monorepo for a web app called Foodie. Have you ever had the problem of being in a group of people who were hungry and looking for something to eat? One person wants to eat one thing, someone else wants to eat another
 it becomes a mission to to pick something. This problem gets worse the more people there are in the group. This is the problem Foodie is trying to solve. The app allows one person (the event leader) to start an 
 "event planning session" (EPS for short) and invite multiple people to that event. The users can all see each and message each other in real-time as they join the EPS. The event leader sets the food preferences and radius of how 
@@ -14,3 +16,4 @@ and users will set a time for the event and the problem will have been solved!
 ![Current system design architecture](./assets/system-design.png)
 
 This architecture is likely to change in some small (maybe big) ways as the project actually gets started and requirements become more clear.
+
