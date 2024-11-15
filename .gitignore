@@ -1,0 +1,4 @@
+private/
+backend_dist/
+node_modules/
+.env

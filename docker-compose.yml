@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./:/home/node/app
+    networks:
+      - foodie
+    depends_on:
+      - db
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: elvis
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: foodie
+    volumes:
+      - foodie_db:/var/lib/postgresql/data
+    
+networks:
+  foodie:
+    driver: bridge
+
+volumes:
+  foodie_db:
