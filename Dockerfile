@@ -9,6 +9,9 @@ USER node
 
 RUN npm install
 
+COPY --chown=node:node ./prisma ./prisma
+RUN npx prisma generate
+
 COPY --chown=node:node . .
 EXPOSE 4000
 
