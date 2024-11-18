@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import * as client from 'openid-client';
-import { getEnvVar } from './env.js';
-import { prisma } from './prisma.js';
-import { createOrUpdateUserAuthToken, getOAuthConfig, getOAuthParams } from './authUtils.js';
+import { createOrUpdateUserAuthToken, getOAuthConfig, getOAuthParams } from './utils.js';
+import { getEnvVar } from '../env.js';
+import { prisma } from '../prisma.js';
 
 export async function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 	const authHeader = req.get('Authorization') || '';

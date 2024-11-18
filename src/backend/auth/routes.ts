@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import * as client from 'openid-client';
-import { getEnvVar } from './env.js';
 import jwt from 'jsonwebtoken';
-import { createOrUpdateUserAuthToken, getOAuthConfig, getOAuthParams, OAuthState, oauthStore } from './authUtils.js';
+import { createOrUpdateUserAuthToken, getOAuthConfig, getOAuthParams, OAuthState, oauthStore } from './utils.js';
+import { getEnvVar } from '../env.js';
 
 export const authRouter = Router();
 

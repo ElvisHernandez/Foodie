@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { authRouter } from './auth.js';
-import { isAuthenticated } from './authMiddleware.js';
+import { authRouter } from './auth/routes.js';
+import { isAuthenticated } from './auth/middleware.js';
 
 const app = express();
 

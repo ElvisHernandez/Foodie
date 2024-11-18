@@ -1,7 +1,7 @@
 import * as client from 'openid-client';
 import { v4 as uuid } from 'uuid';
-import { getEnvVar } from './env.js';
-import { prisma } from './prisma.js';
+import { getEnvVar } from '../env.js';
+import { prisma } from '../prisma.js';
 
 export type OAuthState = {
 	code_verifier: string;
