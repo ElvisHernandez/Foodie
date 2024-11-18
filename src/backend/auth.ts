@@ -3,6 +3,7 @@ import * as client from 'openid-client';
 import { v4 as uuid } from 'uuid';
 import { getEnvVar } from './env.js';
 import { prisma } from './prisma.js';
+import jwt from 'jsonwebtoken';
 
 export const authRouter = Router();
 
@@ -64,7 +65,7 @@ authRouter.get('/google/callback', async (req, res) => {
 		);
 
 		const { access_token } = tokens;
-		const { sub, exp } = tokens.claims() ?? {};
+		const { sub } = tokens.claims() ?? {};
 
 		if (!access_token || !sub) {
 			res.status(500).json({ error: 'Access token or sub not present' });
@@ -78,13 +79,17 @@ authRouter.get('/google/callback', async (req, res) => {
 			return;
 		}
 
-		tokens.refresh_token
+		await createOrUpdateUserAuthToken(email, tokens);
 
-		console.log({ tokens });
+		const jwtToken = jwt.sign(
+			{ email },
+			getEnvVar('JWT_SECRET'),
+			{
+				expiresIn: tokens.expires_in!
+			}
+		);
 
-		await createOrUpdateUserAuthToken(email, tokens, exp!);
-
-		res.redirect('http://localhost:3000?coming_from_google_redirect=true');
+		res.redirect(`http://localhost:3000?auth_token=${jwtToken}`);
 	}
 	catch (e) {
 		console.error(e);
@@ -95,24 +100,20 @@ authRouter.get('/google/callback', async (req, res) => {
 	}
 });
 
-async function createOrUpdateUserAuthToken(
-	email: string,
-	tokens: client.TokenEndpointResponse,
-	idTokenExpiration: number,
-) {
+async function createOrUpdateUserAuthToken(email: string, tokens: client.TokenEndpointResponse) {
 	await prisma.$transaction(async (tx) => {
 		const user = await tx.user.upsert({
 			where: { email },
+			create: { email },
 			update: {},
-			create: { email }
 		});
+
+		const accessTokenExpiration = Number(new Date()) + (tokens.expires_in! * 1000);
 
 		const tokenFields = {
 			userId: user.id,
 			accessToken: tokens.access_token,
-			accessTokenExpiration: new Date(tokens.expires_in!).toISOString(),
-			idToken: tokens.id_token!,
-			idTokenExpiration: new Date(idTokenExpiration).toISOString(),
+			accessTokenExpiration: new Date(accessTokenExpiration).toISOString(),
 			refreshToken: tokens.refresh_token!,
 			revoked: false,
 		}

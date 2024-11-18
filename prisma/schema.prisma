@@ -28,8 +28,6 @@ model Token {
   userId Int @unique
   accessToken String
   accessTokenExpiration DateTime
-  idToken String
-  idTokenExpiration DateTime
   refreshToken String
   revoked Boolean @default(false)
   createdAt DateTime @default(now())
