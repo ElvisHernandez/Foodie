@@ -9,28 +9,36 @@ export async function isAuthenticated(req: Request, res: Response, next: NextFun
 	const authHeader = req.get('Authorization') || '';
 	const authToken = authHeader.split('Bearer ')?.[1];
 
-	if (!authToken) {
-		res.status(403).json({ error: 'Unauthenticated' });
-		return;
+	const validatedToken = await validateToken(authToken);
+
+	if (validatedToken) {
+		res.set('Authorization', `Bearer ${validatedToken}`);
+		return next();
 	}
 
+	res.status(403).json({ error: 'Unauthenticated' });
+}
+
+export async function validateToken(authToken?: string) {
+	if (!authToken) return;
+
+	// Return original auth token if it passes validation. If the 
+	// token is expired then try to refresh and return new token.
 	try {
 		jwt.verify(authToken, getEnvVar('JWT_SECRET'));
-		next();
+		return authToken;
 	}
 	catch (e) {
 		if (e instanceof jwt.TokenExpiredError) {
-			await refreshExpiredTokens(authToken, res);
-			next();
+			return await refreshExpiredTokens(authToken);
 		}
 		else {
 			console.error(e);
-			res.status(403).json({ error: 'Unauthenticated' });
 		}
 	}
 }
 
-async function refreshExpiredTokens(authToken: string, res: Response) {
+async function refreshExpiredTokens(authToken: string) {
 	try {
 		const decoded = decodeJwtPayload(authToken);
 		const email = decoded?.email || '';
@@ -39,13 +47,12 @@ async function refreshExpiredTokens(authToken: string, res: Response) {
 			include: { token: true },
 		});
 
-		const oauthConfig = await getOAuthConfig();
-		const { parameters } = await getOAuthParams(oauthConfig);
-
 		if (!user?.token?.refreshToken) {
 			throw new Error(`Was not able to retrieve access token for ${email}`);
 		}
 
+		const oauthConfig = await getOAuthConfig();
+		const { parameters } = await getOAuthParams(oauthConfig);
 		const refreshedTokens = await client.refreshTokenGrant(
 			oauthConfig,
 			user.token.refreshToken,
@@ -67,12 +74,11 @@ async function refreshExpiredTokens(authToken: string, res: Response) {
 				expiresIn: refreshedTokens.expires_in!
 			}
 		);
-		res.set('Authorization', `Bearer ${jwtToken}`);
+
+		return jwtToken;
 	}
 	catch (e) {
 		console.error(e);
-		res.status(403).json({ error: 'Unauthenticated' });
-		return;
 	}
 }
 

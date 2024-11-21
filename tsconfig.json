@@ -2,6 +2,9 @@
   "include": [
     "src/backend/**/*"
   ],
+  "exclude": [
+    "src/frontend"
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     /* Projects */

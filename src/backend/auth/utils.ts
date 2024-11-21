@@ -21,7 +21,7 @@ export async function getOAuthConfig() {
 }
 
 export async function getOAuthParams(config: client.Configuration) {
-	const redirect_uri = 'http://localhost:4000/auth/google/callback';
+	const redirect_uri = 'http://localhost:4000/v1/auth/google/callback';
 	const scope = 'openid https://www.googleapis.com/auth/userinfo.email';
 	const code_verifier = client.randomPKCECodeVerifier();
 	const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
@@ -33,6 +33,7 @@ export async function getOAuthParams(config: client.Configuration) {
 		code_challenge,
 		code_challenge_method: 'S256',
 		access_type: 'offline',
+		prompt: 'consent',
 	};
 
 	if (!config.serverMetadata().supportsPKCE()) {
